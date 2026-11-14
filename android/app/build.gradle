@@ -4,7 +4,7 @@ apply plugin: "com.facebook.react"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 def easProjectId = (System.getenv("EAS_PROJECT_ID") ?: "").trim()
-def expoUpdatesEnabled = !easProjectId.isEmpty()
+def expoUpdatesEnabled = easProjectId ==~ /(?i)[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/
 
 react {
     entryFile = file(["node", "-e", "require('expo/scripts/resolveAppEntry')", projectRoot, "android", "absolute"].execute(null, rootDir).text.trim())
