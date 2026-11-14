@@ -26,3 +26,23 @@ See BUILDING.md for local build steps and the GitHub Actions APK artifact.
 ## APK size
 
 The project is configured for arm64, Hermes, R8/ProGuard and resource shrinking. A 10 MB APK is an optimization goal only; it cannot be guaranteed until the release APK has actually been built and measured.
+
+
+## App updates (OTA)
+
+Paperly is prepared for Expo Updates (EAS Update). JavaScript/TypeScript UI and compatible assets can be published over the air, so users do not need a fresh APK for those changes. Updates download when the app opens and are applied on the next launch; the Settings screen also has a manual **Check for updates** action.
+
+### One-time setup
+
+1. Create or sign in to an Expo account and create an EAS project for Paperly.
+2. In GitHub repository Settings → Secrets and variables → Actions, add:
+   - Repository **variable** `EAS_PROJECT_ID` = the EAS project UUID.
+   - Repository **secret** `EXPO_TOKEN` = an Expo access token.
+3. Run the Android APK workflow once after setting the variable. This installs the native update client and embeds the EAS project URL and `production` channel in the APK.
+4. Thereafter, changes to `App.tsx`, `index.js`, `src/` or `assets/` on `main` automatically publish a compatible Android OTA update. You can also run the **Publish Paperly OTA update** workflow manually.
+
+### Important boundary
+
+OTA updates replace the JavaScript bundle and compatible assets only. Changes to Kotlin/Java, Android permissions, ML Kit, `react-native-svg`, any other native dependency, or the native runtime require a new APK. When native code changes, increment the runtime version in `app.config.js`, `android/app/build.gradle`, and `android/app/src/main/res/values/strings.xml`, then distribute the new APK. The runtime version prevents an incompatible JavaScript update from being installed on the wrong native build.
+
+If the EAS project ID or token is missing, the OTA workflow skips publishing and the Settings page reports that OTA is not connected. It does not pretend an update has been published.
