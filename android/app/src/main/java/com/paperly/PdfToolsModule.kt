@@ -537,6 +537,7 @@ class PdfToolsModule(
                 }
             }
         }
+    }
         return pages
     }
 
