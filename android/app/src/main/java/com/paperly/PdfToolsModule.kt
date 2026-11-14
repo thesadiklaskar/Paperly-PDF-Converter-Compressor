@@ -25,13 +25,11 @@ import com.facebook.react.bridge.WritableMap
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
 import java.util.Locale
 import java.util.concurrent.Executors
-import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
@@ -150,26 +148,26 @@ class PdfToolsModule(
         }
 
         worker.execute {
+            val temporaryImages = mutableListOf<File>()
+            var output: File? = null
             try {
-                val workDir = workDirectory()
-                val jpegFiles = mutableListOf<File>()
                 uriList.forEachIndexed { index, uri ->
-                    jpegFiles.add(
-                        encodeImageToJpeg(
-                            uri,
-                            File(workDir, "image_" + System.nanoTime() + "_" + index + ".jpg"),
-                            3000,
-                            92
-                        )
+                    val jpeg = File(
+                        workDirectory(),
+                        "image_" + System.nanoTime() + "_" + index + ".jpg"
                     )
+                    encodeImageToJpeg(uri, jpeg, 2200, 90)
+                    temporaryImages.add(jpeg)
                 }
 
-                val output = uniquePdfFile(requestedName)
-                writePdfFromJpegs(jpegFiles, output)
-                jpegFiles.forEach { it.delete() }
-                promise.resolve(fileResult(output, uriList.size))
+                output = uniquePdfFile(requestedName)
+                writePdfFromJpegs(temporaryImages, output!!)
+                promise.resolve(fileResult(output!!, uriList.size))
             } catch (error: Throwable) {
+                output?.delete()
                 promise.reject("E_CREATE_PDF", error)
+            } finally {
+                temporaryImages.forEach { it.delete() }
             }
         }
     }
@@ -204,18 +202,18 @@ class PdfToolsModule(
                 val ratio = targetBytes.toDouble() / sourceBytes.toDouble()
 
                 var quality = when {
-                    ratio >= 0.85 -> 92
-                    ratio >= 0.60 -> 86
-                    ratio >= 0.40 -> 78
-                    ratio >= 0.20 -> 68
-                    else -> 58
+                    ratio >= 0.85 -> 90
+                    ratio >= 0.60 -> 84
+                    ratio >= 0.40 -> 76
+                    ratio >= 0.20 -> 66
+                    else -> 56
                 }
                 var maxSide = when {
-                    ratio >= 0.75 -> 2600
-                    ratio >= 0.45 -> 2200
-                    ratio >= 0.25 -> 1800
-                    ratio >= 0.10 -> 1450
-                    else -> 1200
+                    ratio >= 0.75 -> 2200
+                    ratio >= 0.45 -> 1900
+                    ratio >= 0.25 -> 1650
+                    ratio >= 0.10 -> 1400
+                    else -> 1100
                 }
 
                 val output = uniquePdfFile(requestedName)
@@ -452,16 +450,16 @@ class PdfToolsModule(
     ): File {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         context.contentResolver.openInputStream(uri).use { input ->
-            if (input == null) throw IllegalStateException("Could not open one of the selected images.")
+            if (input == null) throw IllegalStateException("Could not open the selected image.")
             BitmapFactory.decodeStream(input, null, bounds)
         }
         if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
-            throw IllegalArgumentException("An image could not be decoded.")
+            throw IllegalArgumentException("The selected image is invalid or unsupported.")
         }
 
         var sample = 1
         val largest = max(bounds.outWidth, bounds.outHeight)
-        while (largest / sample > maxDimension * 1.35) {
+        while (largest / sample > maxDimension) {
             sample *= 2
         }
 
@@ -470,78 +468,117 @@ class PdfToolsModule(
             inPreferredConfig = Bitmap.Config.ARGB_8888
         }
         val decoded = context.contentResolver.openInputStream(uri).use { input ->
-            if (input == null) throw IllegalStateException("Could not reopen an image.")
+            if (input == null) throw IllegalStateException("Could not reopen the selected image.")
             BitmapFactory.decodeStream(input, null, options)
-                ?: throw IllegalArgumentException("An image could not be decoded.")
+                ?: throw IllegalArgumentException("The selected image could not be decoded.")
         }
 
-        val orientation = try {
-            context.contentResolver.openInputStream(uri).use { input ->
-                if (input == null) ExifInterface.ORIENTATION_NORMAL
-                else ExifInterface(input).getAttributeInt(
-                    ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_NORMAL
+        var oriented: Bitmap = decoded
+        try {
+            val orientation = try {
+                context.contentResolver.openInputStream(uri).use { input ->
+                    if (input == null) ExifInterface.ORIENTATION_NORMAL
+                    else ExifInterface(input).getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_NORMAL
+                    )
+                }
+            } catch (_: Throwable) {
+                ExifInterface.ORIENTATION_NORMAL
+            }
+
+            val matrix = Matrix()
+            when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.preScale(-1f, 1f)
+                ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.preScale(1f, -1f)
+            }
+
+            if (!matrix.isIdentity) {
+                oriented = Bitmap.createBitmap(
+                    decoded,
+                    0,
+                    0,
+                    decoded.width,
+                    decoded.height,
+                    matrix,
+                    true
                 )
+                if (oriented !== decoded && !decoded.isRecycled) decoded.recycle()
             }
-        } catch (_: Throwable) {
-            ExifInterface.ORIENTATION_NORMAL
-        }
 
-        val matrix = Matrix()
-        when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
-            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.preScale(-1f, 1f)
-            ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.preScale(1f, -1f)
-        }
-
-        val oriented = if (!matrix.isIdentity) {
-            Bitmap.createBitmap(decoded, 0, 0, decoded.width, decoded.height, matrix, true).also {
-                if (it !== decoded) decoded.recycle()
+            FileOutputStream(destination).use { output ->
+                if (!oriented.compress(Bitmap.CompressFormat.JPEG, quality, output)) {
+                    throw IllegalStateException("Could not encode the selected image.")
+                }
+                output.flush()
             }
-        } else {
-            decoded
+            return destination
+        } catch (error: Throwable) {
+            destination.delete()
+            throw error
+        } finally {
+            if (!oriented.isRecycled) oriented.recycle()
+            if (!decoded.isRecycled) decoded.recycle()
         }
-
-        FileOutputStream(destination).use { output ->
-            if (!oriented.compress(Bitmap.CompressFormat.JPEG, quality, output)) {
-                throw IllegalStateException("Could not encode an image.")
-            }
-            output.flush()
-        }
-        oriented.recycle()
-        return destination
     }
 
     private fun renderPdfToJpegs(source: File, maxSide: Int, quality: Int): List<File> {
         val pages = mutableListOf<File>()
-        ParcelFileDescriptor.open(source, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
-            PdfRenderer(descriptor).use { renderer ->
-                for (index in 0 until renderer.pageCount) {
-                renderer.openPage(index).use { page ->
-                    val longest = max(page.width, page.height).coerceAtLeast(1)
-                    val scale = maxSide.toDouble() / longest.toDouble()
-                    val width = max(1, (page.width * scale).toInt())
-                    val height = max(1, (page.height * scale).toInt())
-                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_PRINT)
+        try {
+            ParcelFileDescriptor.open(source, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
+                PdfRenderer(descriptor).use { renderer ->
+                    for (index in 0 until renderer.pageCount) {
+                        renderer.openPage(index).use { page ->
+                            val longest = max(page.width, page.height).coerceAtLeast(1)
+                            var scale = min(1.0, maxSide.toDouble() / longest.toDouble())
 
-                    val imageFile = File(
-                        workDirectory(),
-                        "compressed_" + System.nanoTime() + "_" + index + ".jpg"
-                    )
-                    FileOutputStream(imageFile).use { output ->
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, output)
-                        output.flush()
+                            // Cap each page at four megapixels to avoid large ARGB allocations
+                            // on entry-level devices and unusually sized PDF pages.
+                            val scaledPixels = page.width.toDouble() * page.height.toDouble() * scale * scale
+                            val maxPixels = 4_000_000.0
+                            if (scaledPixels > maxPixels) {
+                                scale *= kotlin.math.sqrt(maxPixels / scaledPixels)
+                            }
+
+                            val width = max(1, (page.width * scale).toInt())
+                            val height = max(1, (page.height * scale).toInt())
+                            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                            val imageFile = File(
+                                workDirectory(),
+                                "compressed_" + System.nanoTime() + "_" + index + ".jpg"
+                            )
+                            try {
+                                page.render(
+                                    bitmap,
+                                    null,
+                                    null,
+                                    PdfRenderer.Page.RENDER_MODE_FOR_PRINT
+                                )
+                                FileOutputStream(imageFile).use { output ->
+                                    if (!bitmap.compress(Bitmap.CompressFormat.JPEG, quality, output)) {
+                                        throw IllegalStateException("Could not encode a compressed PDF page.")
+                                    }
+                                    output.flush()
+                                }
+                                pages.add(imageFile)
+                            } catch (error: Throwable) {
+                                imageFile.delete()
+                                throw error
+                            } finally {
+                                if (!bitmap.isRecycled) bitmap.recycle()
+                            }
+                        }
                     }
-                    bitmap.recycle()
-                    pages.add(imageFile)
                 }
             }
+            return pages
+        } catch (error: Throwable) {
+            pages.forEach { it.delete() }
+            throw error
         }
-    }
-        return pages
     }
 
     private fun writePdfFromJpegs(images: List<File>, destination: File) {
