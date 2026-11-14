@@ -52,7 +52,7 @@ type DialogState = {
 };
 
 const PdfTools = NativeModules.PdfTools as NativeApi;
-const APP_VERSION = '1.0.4';
+const APP_VERSION = '1.0.5';
 
 const C = {
   background: '#F7F8FC',
