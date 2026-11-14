@@ -1,6 +1,7 @@
 package com.paperly
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.ContentValues
 import android.content.Intent
 import android.database.Cursor
@@ -114,12 +115,27 @@ class PdfToolsModule(
             return
         }
 
+        // ML Kit Document Scanner requires at least 1.7 GB total device RAM.
+        // Check before launching so unsupported devices get a readable error
+        // instead of being sent into a heavy scanner flow.
+        val activityManager =
+            context.getSystemService(android.content.Context.ACTIVITY_SERVICE) as? ActivityManager
+        val memoryInfo = ActivityManager.MemoryInfo()
+        activityManager?.getMemoryInfo(memoryInfo)
+        val minimumScannerRam = 1700L * 1024L * 1024L
+        if (activityManager != null && memoryInfo.totalMem < minimumScannerRam) {
+            promise.reject(
+                "E_UNSUPPORTED_DEVICE",
+                "The document scanner requires a device with at least 1.7 GB RAM. You can still use Images to PDF."
+            )
+            return
+        }
+
         val options = GmsDocumentScannerOptions.Builder()
             .setGalleryImportAllowed(false)
-            .setResultFormats(
-                GmsDocumentScannerOptions.RESULT_FORMAT_JPEG,
-                GmsDocumentScannerOptions.RESULT_FORMAT_PDF
-            )
+            .setPageLimit(50)
+            // Paperly consumes the PDF result; avoid generating duplicate JPEG output.
+            .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_PDF)
             .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
             .build()
 
