@@ -1,6 +1,6 @@
 {
   "name": "paperly",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "private": true,
   "scripts": {
     "android": "gradle -p android installDebug",
@@ -9,7 +9,11 @@
   },
   "dependencies": {
     "react": "18.3.1",
-    "react-native": "0.76.7"
+    "react-native": "0.76.9",
+    "expo": "~52.0.49",
+    "expo-updates": "~0.27.5",
+    "react-native-svg": "15.8.0",
+    "lucide-react-native": "0.468.0"
   },
   "devDependencies": {
     "@react-native/metro-config": "0.76.7",
@@ -22,5 +26,6 @@
   },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "main": "index.js"
 }
