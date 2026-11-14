@@ -593,7 +593,14 @@ class PdfToolsModule(
                     " /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " +
                     image.length() + " >>\nstream\n"
                 output.write(imageHeader.toByteArray(Charsets.ISO_8859_1))
-                image.inputStream().use { input -> input.copyTo(java.io.FileOutputStream(output.fd)) }
+                image.inputStream().use { input ->
+                    val buffer = ByteArray(32 * 1024)
+                    while (true) {
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        output.write(buffer, 0, count)
+                    }
+                }
                 output.write("\nendstream\nendobj\n".toByteArray(Charsets.ISO_8859_1))
 
                 val content = String.format(
