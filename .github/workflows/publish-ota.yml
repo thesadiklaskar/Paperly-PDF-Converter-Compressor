@@ -28,8 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      EAS_PROJECT_ID: \${{ vars.EAS_PROJECT_ID }}
-      EXPO_TOKEN: \${{ secrets.EXPO_TOKEN }}
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     steps:
       - name: Checkout main
@@ -63,7 +63,7 @@ jobs:
         if: steps.ota.outputs.ready == 'true'
         shell: bash
         run: |
-          MESSAGE="\${{ github.event.inputs.message }}"
+          MESSAGE="${{ github.event.inputs.message }}"
           if [[ -z "$MESSAGE" ]]; then MESSAGE="Paperly main \${GITHUB_SHA::8}"; fi
           npx --yes eas-cli@latest update \
             --branch production \
