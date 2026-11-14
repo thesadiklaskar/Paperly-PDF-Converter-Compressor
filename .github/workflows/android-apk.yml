@@ -16,6 +16,8 @@ jobs:
   build:
     name: Build arm64 release APK
     runs-on: ubuntu-latest
+    env:
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
     timeout-minutes: 45
     steps:
       - name: Checkout
