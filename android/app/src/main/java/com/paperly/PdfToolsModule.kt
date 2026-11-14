@@ -193,7 +193,10 @@ class PdfToolsModule(
                     ).use { descriptor ->
                         PdfRenderer(descriptor).use { renderer -> renderer.pageCount }
                     }
-                    val unchanged = fileResult(source, originalPages)
+                    val unchangedFile = uniquePdfFile(requestedName)
+                    source.copyTo(unchangedFile, overwrite = true)
+                    source.delete()
+                    val unchanged = fileResult(unchangedFile, originalPages)
                     unchanged.putBoolean("targetReached", true)
                     promise.resolve(unchanged)
                     return@execute
@@ -518,7 +521,7 @@ class PdfToolsModule(
                 for (index in 0 until renderer.pageCount) {
                 renderer.openPage(index).use { page ->
                     val longest = max(page.width, page.height).coerceAtLeast(1)
-                    val scale = min(1.0, maxSide.toDouble() / longest.toDouble())
+                    val scale = maxSide.toDouble() / longest.toDouble()
                     val width = max(1, (page.width * scale).toInt())
                     val height = max(1, (page.height * scale).toInt())
                     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
