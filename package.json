@@ -1,0 +1,23 @@
+{
+  "name": "paperly",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "start": "react-native start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-native": "0.76.7"
+  },
+  "devDependencies": {
+    "@react-native/metro-config": "0.76.7",
+    "@react-native/typescript-config": "0.76.7",
+    "@types/react": "^18.3.12",
+    "typescript": "5.0.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
