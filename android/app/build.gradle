@@ -21,8 +21,8 @@ android {
         applicationId "com.paperly"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 3
+        versionName "1.0.2"
         ndk {
             abiFilters "arm64-v8a"
         }
@@ -60,6 +60,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.facebook.react:react-android")
     implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
 
