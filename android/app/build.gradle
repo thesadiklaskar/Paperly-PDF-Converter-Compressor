@@ -43,6 +43,10 @@ android {
     }
 
     packagingOptions {
+        jniLibs {
+            // Compress native .so files inside the APK to reduce the delivered APK size.
+            useLegacyPackaging = true
+        }
         resources {
             excludes += [
                 "META-INF/DEPENDENCIES",
