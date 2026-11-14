@@ -186,6 +186,18 @@ class PdfToolsModule(
                 val source = copyUriToCache(Uri.parse(uriString), "source_" + System.nanoTime() + ".pdf")
                 val sourceBytes = source.length().coerceAtLeast(1L)
                 val targetBytes = (targetMb * 1024.0 * 1024.0).toLong().coerceAtLeast(1L)
+                if (targetBytes >= sourceBytes) {
+                    val originalPages = ParcelFileDescriptor.open(
+                        source,
+                        ParcelFileDescriptor.MODE_READ_ONLY
+                    ).use { descriptor ->
+                        PdfRenderer(descriptor).use { renderer -> renderer.pageCount }
+                    }
+                    val unchanged = fileResult(source, originalPages)
+                    unchanged.putBoolean("targetReached", true)
+                    promise.resolve(unchanged)
+                    return@execute
+                }
                 val ratio = targetBytes.toDouble() / sourceBytes.toDouble()
 
                 var quality = when {
@@ -501,9 +513,9 @@ class PdfToolsModule(
 
     private fun renderPdfToJpegs(source: File, maxSide: Int, quality: Int): List<File> {
         val pages = mutableListOf<File>()
-        val descriptor = ParcelFileDescriptor.open(source, ParcelFileDescriptor.MODE_READ_ONLY)
-        PdfRenderer(descriptor).use { renderer ->
-            for (index in 0 until renderer.pageCount) {
+        ParcelFileDescriptor.open(source, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
+            PdfRenderer(descriptor).use { renderer ->
+                for (index in 0 until renderer.pageCount) {
                 renderer.openPage(index).use { page ->
                     val longest = max(page.width, page.height).coerceAtLeast(1)
                     val scale = min(1.0, maxSide.toDouble() / longest.toDouble())
