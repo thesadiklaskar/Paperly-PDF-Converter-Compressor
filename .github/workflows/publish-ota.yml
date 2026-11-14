@@ -30,6 +30,7 @@ jobs:
     env:
       EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      OTA_MESSAGE: ${{ inputs.message || '' }}
 
     steps:
       - name: Checkout main
@@ -39,11 +40,12 @@ jobs:
         id: ota
         shell: bash
         run: |
-          if [[ -z "$EAS_PROJECT_ID" || -z "$EXPO_TOKEN" ]]; then
+          UUID_REGEX="^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89aAbB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+          if [[ ! "$EAS_PROJECT_ID" =~ $UUID_REGEX || ${#EXPO_TOKEN} -lt 20 ]]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"
             {
               echo "## OTA publish skipped"
-              echo "Add the repository variable EAS_PROJECT_ID and secret EXPO_TOKEN to enable automatic over-the-air publishing."
+              echo "Set EAS_PROJECT_ID to a valid EAS project UUID and EXPO_TOKEN to a valid Expo access token in repository Actions settings."
             } >> "$GITHUB_STEP_SUMMARY"
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"
@@ -63,8 +65,7 @@ jobs:
         if: steps.ota.outputs.ready == 'true'
         shell: bash
         run: |
-          MESSAGE="${{ github.event.inputs.message }}"
-          if [[ -z "$MESSAGE" ]]; then MESSAGE="Paperly main \${GITHUB_SHA::8}"; fi
+          MESSAGE="${OTA_MESSAGE:-Paperly main ${GITHUB_SHA:0:8}}"
           npx --yes eas-cli@latest update \
             --branch production \
             --platform android \
