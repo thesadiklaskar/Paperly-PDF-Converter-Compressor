@@ -1,4 +1,5 @@
 const projectId = (process.env.EAS_PROJECT_ID || '').trim();
+const validProjectId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(projectId);
 const runtimeVersion = '1.0.4';
 
 module.exports = {
@@ -13,14 +14,14 @@ module.exports = {
     },
     runtimeVersion,
     updates: {
-      enabled: Boolean(projectId),
+      enabled: validProjectId,
       checkAutomatically: 'ON_LOAD',
       fallbackToCacheTimeout: 0,
       requestHeaders: {'expo-channel-name': 'production'},
-      ...(projectId ? {url: 'https://u.expo.dev/' + projectId} : {}),
+      ...(validProjectId ? {url: 'https://u.expo.dev/' + projectId} : {}),
     },
     extra: {
-      eas: projectId ? {projectId} : {},
+      eas: validProjectId ? {projectId} : {},
     },
   },
 };
