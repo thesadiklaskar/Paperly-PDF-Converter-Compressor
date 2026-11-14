@@ -1,0 +1,2 @@
+-keep class com.paperly.** { *; }
+-keep class com.google.mlkit.vision.documentscanner.** { *; }
