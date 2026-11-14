@@ -1,0 +1,76 @@
+name: Publish Paperly OTA update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "App.tsx"
+      - "index.js"
+      - "src/**"
+      - "assets/**"
+  workflow_dispatch:
+    inputs:
+      message:
+        description: Update description
+        required: false
+        default: "Paperly update from main"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: paperly-ota-production
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Publish compatible Android JavaScript update
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EAS_PROJECT_ID: \${{ vars.EAS_PROJECT_ID }}
+      EXPO_TOKEN: \${{ secrets.EXPO_TOKEN }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Check OTA credentials
+        id: ota
+        shell: bash
+        run: |
+          if [[ -z "$EAS_PROJECT_ID" || -z "$EXPO_TOKEN" ]]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## OTA publish skipped"
+              echo "Add the repository variable EAS_PROJECT_ID and secret EXPO_TOKEN to enable automatic over-the-air publishing."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node
+        if: steps.ota.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        if: steps.ota.outputs.ready == 'true'
+        run: npm install --no-audit --no-fund
+
+      - name: Publish production OTA update
+        if: steps.ota.outputs.ready == 'true'
+        shell: bash
+        run: |
+          MESSAGE="\${{ github.event.inputs.message }}"
+          if [[ -z "$MESSAGE" ]]; then MESSAGE="Paperly main \${GITHUB_SHA::8}"; fi
+          npx --yes eas-cli@latest update \
+            --branch production \
+            --platform android \
+            --message "$MESSAGE" \
+            --non-interactive
+
+      - name: Explain skipped publish
+        if: steps.ota.outputs.ready != 'true'
+        run: echo "OTA publishing is not connected yet. Android APK builds continue to work normally."
