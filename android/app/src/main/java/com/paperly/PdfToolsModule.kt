@@ -176,7 +176,8 @@ class PdfToolsModule(
                         workDirectory(),
                         "image_" + System.nanoTime() + "_" + index + ".jpg"
                     )
-                    encodeImageToJpeg(uri, jpeg, 2200, 90)
+                    cleanupOldWorkFiles()
+                    encodeImageToJpeg(uri, jpeg, 1800, 88)
                     temporaryImages.add(jpeg)
                 }
 
@@ -230,25 +231,25 @@ class PdfToolsModule(
 
                 val ratio = targetBytes.toDouble() / sourceBytes.toDouble()
                 var quality = when {
-                    ratio >= 0.85 -> 90
-                    ratio >= 0.60 -> 84
-                    ratio >= 0.40 -> 76
-                    ratio >= 0.20 -> 66
-                    else -> 56
+                    ratio >= 0.85 -> 88
+                    ratio >= 0.60 -> 82
+                    ratio >= 0.40 -> 74
+                    ratio >= 0.20 -> 64
+                    else -> 54
                 }
                 var maxSide = when {
-                    ratio >= 0.75 -> 2200
-                    ratio >= 0.45 -> 1900
-                    ratio >= 0.25 -> 1650
-                    ratio >= 0.10 -> 1400
-                    else -> 1100
+                    ratio >= 0.75 -> 1900
+                    ratio >= 0.45 -> 1700
+                    ratio >= 0.25 -> 1500
+                    ratio >= 0.10 -> 1250
+                    else -> 1000
                 }
 
                 output = uniquePdfFile(requestedName)
                 var pageCount = 0
                 var attempt = 0
                 var reached = false
-                while (attempt < 3) {
+                while (attempt < 2) {
                     val pageJpegs = renderPdfToJpegs(source, maxSide, quality)
                     pageCount = pageJpegs.size
                     try {
@@ -319,6 +320,9 @@ class PdfToolsModule(
                 val response = Arguments.createMap()
                 response.putString("uri", destination.toString())
                 response.putString("name", displayName)
+                // The saved Downloads copy is now the user's durable file.
+                // Remove the temporary cache copy to release storage.
+                source.delete()
                 promise.resolve(response)
             } catch (error: Throwable) {
                 promise.reject("E_SAVE_PDF", error)
@@ -454,6 +458,17 @@ class PdfToolsModule(
         return directory
     }
 
+    // Only remove stale files; current results remain available for rename/save.
+    // This runs when the user starts a document task, never as a background timer.
+    private fun cleanupOldWorkFiles() {
+        val cutoff = System.currentTimeMillis() - 24L * 60L * 60L * 1000L
+        workDirectory().listFiles()?.forEach { file ->
+            if (file.isFile && file.lastModified() < cutoff) {
+                file.delete()
+            }
+        }
+    }
+
     private fun uniquePdfFile(requestedName: String): File {
         val safeName = ensurePdfExtension(requestedName).removeSuffix(".pdf")
         return File(workDirectory(), safeName + "_" + System.nanoTime() + ".pdf")
@@ -570,10 +585,9 @@ class PdfToolsModule(
                             val longest = max(page.width, page.height).coerceAtLeast(1)
                             var scale = min(1.0, maxSide.toDouble() / longest.toDouble())
 
-                            // Cap each page at four megapixels to avoid large ARGB allocations
-                            // on entry-level devices and unusually sized PDF pages.
+                            // Cap each page at 2.5 megapixels to limit RAM use and render time.
                             val scaledPixels = page.width.toDouble() * page.height.toDouble() * scale * scale
-                            val maxPixels = 4_000_000.0
+                            val maxPixels = 2_500_000.0
                             if (scaledPixels > maxPixels) {
                                 scale *= kotlin.math.sqrt(maxPixels / scaledPixels)
                             }
