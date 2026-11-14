@@ -11,6 +11,9 @@ def jscFlavor = "io.github.react-native-community:jsc-android:2026004.+"
 
 android {
     namespace "com.paperly"
+    buildFeatures {
+        buildConfig = true
+    }
     compileSdk rootProject.ext.compileSdkVersion
     ndkVersion rootProject.ext.ndkVersion
 
