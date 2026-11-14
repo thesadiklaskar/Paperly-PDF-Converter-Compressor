@@ -6,11 +6,11 @@ module.exports = {
   expo: {
     name: 'Paperly',
     slug: 'paperly',
-    version: '1.0.4',
+    version: '1.0.5',
     orientation: 'portrait',
     android: {
       package: 'com.paperly',
-      versionCode: 5,
+      versionCode: 6,
     },
     runtimeVersion,
     updates: {
