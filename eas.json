@@ -1,0 +1,15 @@
+{
+  "cli": {
+    "version": ">= 10.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "channel": "production"
+    },
+    "production": {
+      "channel": "production"
+    }
+  }
+}
