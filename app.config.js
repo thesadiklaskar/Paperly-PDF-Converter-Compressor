@@ -16,6 +16,7 @@ module.exports = {
       enabled: Boolean(projectId),
       checkAutomatically: 'ON_LOAD',
       fallbackToCacheTimeout: 0,
+      requestHeaders: {'expo-channel-name': 'production'},
       ...(projectId ? {url: 'https://u.expo.dev/' + projectId} : {}),
     },
     extra: {
