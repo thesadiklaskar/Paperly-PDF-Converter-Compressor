@@ -8,7 +8,7 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 import expo.modules.ReactActivityDelegateWrapper
 
 class MainActivity : ReactActivity() {
-    override fun getMainComponentName(): String = "Paperly"
+    override fun getMainComponentName(): String = "main"
 
     override fun createReactActivityDelegate(): ReactActivityDelegate =
         ReactActivityDelegateWrapper(
