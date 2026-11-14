@@ -43,7 +43,11 @@ class PdfToolsModule(
         private const val REQUEST_PDF = 4103
     }
 
-    private val worker = Executors.newSingleThreadExecutor()
+    private val worker = Executors.newSingleThreadExecutor { task ->
+        Thread(task, "Paperly-PdfWorker").apply {
+            priority = Thread.NORM_PRIORITY - 1
+        }
+    }
     private var scanPromise: Promise? = null
     private var pickerPromise: Promise? = null
     private var pickerMode: String? = null
@@ -180,10 +184,19 @@ class PdfToolsModule(
         }
 
         worker.execute {
+            var source: File? = null
+            var output: File? = null
             try {
-                val source = copyUriToCache(Uri.parse(uriString), "source_" + System.nanoTime() + ".pdf")
+                source = copyUriToCache(
+                    Uri.parse(uriString),
+                    "source_" + System.nanoTime() + ".pdf"
+                )
                 val sourceBytes = source.length().coerceAtLeast(1L)
-                val targetBytes = (targetMb * 1024.0 * 1024.0).toLong().coerceAtLeast(1L)
+                val targetBytes = (targetMb * 1024.0 * 1024.0)
+                    .coerceAtMost(Long.MAX_VALUE.toDouble())
+                    .toLong()
+                    .coerceAtLeast(1L)
+
                 if (targetBytes >= sourceBytes) {
                     val originalPages = ParcelFileDescriptor.open(
                         source,
@@ -191,16 +204,15 @@ class PdfToolsModule(
                     ).use { descriptor ->
                         PdfRenderer(descriptor).use { renderer -> renderer.pageCount }
                     }
-                    val unchangedFile = uniquePdfFile(requestedName)
-                    source.copyTo(unchangedFile, overwrite = true)
-                    source.delete()
-                    val unchanged = fileResult(unchangedFile, originalPages)
+                    output = uniquePdfFile(requestedName)
+                    source.copyTo(output!!, overwrite = true)
+                    val unchanged = fileResult(output!!, originalPages)
                     unchanged.putBoolean("targetReached", true)
                     promise.resolve(unchanged)
                     return@execute
                 }
-                val ratio = targetBytes.toDouble() / sourceBytes.toDouble()
 
+                val ratio = targetBytes.toDouble() / sourceBytes.toDouble()
                 var quality = when {
                     ratio >= 0.85 -> 90
                     ratio >= 0.60 -> 84
@@ -216,28 +228,35 @@ class PdfToolsModule(
                     else -> 1100
                 }
 
-                val output = uniquePdfFile(requestedName)
+                output = uniquePdfFile(requestedName)
                 var pageCount = 0
                 var attempt = 0
+                var reached = false
                 while (attempt < 3) {
                     val pageJpegs = renderPdfToJpegs(source, maxSide, quality)
                     pageCount = pageJpegs.size
-                    writePdfFromJpegs(pageJpegs, output)
-                    pageJpegs.forEach { it.delete() }
-                    if (output.length() <= targetBytes || attempt == 2) {
-                        break
+                    try {
+                        writePdfFromJpegs(pageJpegs, output!!)
+                    } finally {
+                        pageJpegs.forEach { it.delete() }
                     }
+
+                    reached = output!!.length() <= targetBytes
+                    if (reached || attempt == 2) break
+
                     maxSide = max(900, (maxSide * 0.82).toInt())
                     quality = max(45, quality - 10)
                     attempt += 1
                 }
 
-                source.delete()
-                val map = fileResult(output, pageCount)
-                map.putBoolean("targetReached", output.length() <= targetBytes)
-                promise.resolve(map)
+                val response = fileResult(output!!, pageCount)
+                response.putBoolean("targetReached", reached)
+                promise.resolve(response)
             } catch (error: Throwable) {
+                output?.delete()
                 promise.reject("E_COMPRESS_PDF", error)
+            } finally {
+                source?.delete()
             }
         }
     }
