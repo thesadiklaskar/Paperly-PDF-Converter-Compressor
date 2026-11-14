@@ -355,12 +355,11 @@ export default function App() {
               <View style={styles.settingsDivider} />
               <RowButton
                 icon={<CloudDownload size={18} color={C.primary} />}
-                title="Check for updates"
+                title="Update status"
                 detail={updateState}
-                onPress={checkForUpdates}
               />
               <Button
-                title={updateBusy ? 'Checking…' : 'Check now'}
+                title={updateBusy ? 'Checking…' : 'Check for updates'}
                 onPress={checkForUpdates}
                 disabled={updateBusy}
                 secondary
