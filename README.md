@@ -1,19 +1,19 @@
 # Paperly
 
-Paperly is a lightweight, Android-first React Native document utility with two bottom-navigation destinations:
+Paperly is a lightweight, Android-first React Native document utility with two main tool tabs:
 
 1. **PDF Converter** — convert selected images into a multi-page PDF, or capture a multi-page document using the native Google ML Kit Document Scanner flow. The result can be renamed before saving to Downloads.
 2. **PDF Compressor** — choose a PDF, enter a target size in MB, and create a smaller image-based PDF with the best practical quality for the requested target.
 
 ## Implementation
 
-- React Native 0.76.7, Android only
+- React Native 0.76.9 with Expo SDK 52 / Updates 0.27.5, Android only
 - Kotlin native module for document scanning, PDF generation, compression, and Downloads saving
 - Google ML Kit Document Scanner in full mode (automatic document capture, crop/rotation, page reordering and cleanup)
 - All image conversion and compression work is performed locally on the device
 - Files are saved to Downloads/Paperly
 
-The scanner library's models, scanning logic and UI are dynamically delivered by Google Play services; Google documents an approximate 300 KB app download-size impact for the scanner dependency. On first use, the device may need an internet connection to fetch those modules. Compatible Google Play services and at least 1.7 GB of device RAM are required by the scanner.
+The in-app progress and confirmation dialogs use Paperly's own UI. Android's system document picker and Google ML Kit scanner remain OS-provided native screens; Android permission prompts are also controlled by the operating system. The scanner library's models, scanning logic and UI are dynamically delivered by Google Play services; Google documents an approximate 300 KB app download-size impact for the scanner dependency. On first use, the device may need an internet connection to fetch those modules. Compatible Google Play services and at least 1.7 GB of device RAM are required by the scanner.
 
 ## Important compression note
 
