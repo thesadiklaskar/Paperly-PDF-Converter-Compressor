@@ -99,13 +99,13 @@ The app's own progress, result, and confirmation dialogs are rendered inside Pap
 
 ## 4. App screenshots
 
-The following screenshots are supplied for this project and hosted on ImageKit.
+The following screenshots show the Paperly Android application.
 
 | App screenshot | App screenshot |
 |---|---|
 | ![Paperly screenshot 1](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM.jpeg) | ![Paperly screenshot 2](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM.jpeg) |
 | ![Paperly screenshot 3](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM%20%281%29.jpeg) | ![Paperly screenshot 4](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM%20%282%29.jpeg) |
-| ![Paperly screenshot 5](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.08%20PM%20%281%29.jpeg) | ![Paperly screenshot 6](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM%20%281%29.jpeg) |
+| ![Paperly screenshot 5](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM%20%281%29.jpeg) | ![Paperly screenshot 6](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.08%20PM.jpeg) |
 
 ---
 
