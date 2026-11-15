@@ -748,4 +748,25 @@ class PdfToolsModule(
         map.putDouble("bytes", file.length().toDouble())
         return map
     }
+    @ReactMethod
+    fun getStudentData(promise: Promise) {
+        try {
+            val preferences = context.getSharedPreferences("paperly_student_data", android.content.Context.MODE_PRIVATE)
+            promise.resolve(preferences.getString("student_data", null))
+        } catch (error: Throwable) {
+            promise.reject("E_STUDENT_STORAGE_READ", error)
+        }
+    }
+
+    @ReactMethod
+    fun saveStudentData(json: String, promise: Promise) {
+        try {
+            val preferences = context.getSharedPreferences("paperly_student_data", android.content.Context.MODE_PRIVATE)
+            preferences.edit().putString("student_data", json).apply()
+            promise.resolve(true)
+        } catch (error: Throwable) {
+            promise.reject("E_STUDENT_STORAGE_WRITE", error)
+        }
+    }
+
 }
