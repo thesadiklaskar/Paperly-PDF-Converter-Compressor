@@ -1,196 +1,302 @@
 # Paperly
 
-**Paperly is an Android-first, offline-capable PDF utility built to make handwritten assignment submission faster, simpler, and more dependable for college and university students.**
+**A focused, offline-first Android PDF utility for students who need to turn handwritten coursework into clean, submission-ready PDF files.**
 
-It turns batches of handwritten-note or assignment photos into a single PDF, then helps reduce an existing PDF to a practical upload size. The core document workflow runs on the device: no Paperly account, application backend, or cloud upload is needed.
+Paperly brings image-to-PDF conversion, multi-page document scanning, and PDF compression together in one lightweight Android application. Its core document workflow runs locally on the device, without a Paperly account, application backend, or cloud document upload.
 
----
-
-## Why Paperly exists
-
-Paperly started with a problem I personally faced as a college student.
-
-College and university learning-management systems, student portals, and assignment-submission websites commonly ask students to submit handwritten work as a PDF. They may also enforce a file-size limit—often 5 MB, 10 MB, or 20 MB. The student has to photograph pages, put them in the right order, combine them into one document, and make sure the resulting file fits the portal's upload limit.
-
-That process becomes frustrating during a busy semester. A single subject can involve 50–60 pages of handwritten work. Across four, five, or six subjects, a submission batch can quickly grow to 100–200 or more page images. Converting and preparing all of those images under a deadline is not a small task.
-
-I ran into several recurring problems with the tools available to me:
-
-- **Paid features for routine student work.** Some polished PDF apps put useful conversion or compression options behind a subscription.
-- **Ads and interruptions.** Free tools can interrupt an urgent workflow with advertisements or upsell screens.
-- **Slow online converters.** Uploading a large batch of images, waiting for processing, and downloading the result takes time.
-- **Internet dependency.** A weak connection, limited data, or an unavailable website can block an assignment submission at exactly the wrong moment.
-- **Unreliable output.** Page order, image clarity, margins, or the final PDF size may not match what the submission portal requires.
-- **Repeated manual work.** Selecting many images, creating a PDF, checking its size, and trying again can consume time that should be spent studying.
-
-Paperly was created to make this specific workflow available in one lightweight Android app. The goal is straightforward: select or scan handwritten pages, create a multi-page PDF on the phone, compress a PDF when necessary, give the file a clear name, and save it ready for submission.
-
-This project is based on a real student problem—not on adding features for the sake of having more features.
+[![Android APK workflow](https://github.com/WorkRCS/pdf-app/actions/workflows/android-apk.yml/badge.svg)](https://github.com/WorkRCS/pdf-app/actions/workflows/android-apk.yml)
+[![Latest source](https://img.shields.io/badge/platform-Android%20%7C%20ARM64-3DDC84)](https://github.com/WorkRCS/pdf-app)
 
 ---
 
-## What Paperly does
+## 1. What does the name “Paperly” mean?
 
-### 1. Images to PDF
+**Paperly** is a coined product name formed from **“paper”** and a friendly **“-ly”** ending. It is not an acronym. The name is intended to suggest a simple, approachable way to handle paper-based work digitally.
 
-- Select multiple images from the device using Android's document picker.
+That idea describes the app: take handwritten pages that exist as photos or scans, turn them into a single organised PDF, and prepare that PDF for online submission.
+
+## 2. Why I built Paperly
+
+Paperly began with a problem I personally experienced as a college student.
+
+In engineering and other college courses, a lot of academic work is still handwritten: class notes, practical records, lab work, assignments, and solved questions. A college learning-management system (LMS), student portal, or assignment-submission website may require that work to be uploaded as a **single PDF**, and it may enforce a maximum file size such as **5 MB, 10 MB, or 20 MB**. The exact limit depends on the institution and the portal.
+
+Preparing a submission sounds simple until there are many pages involved. One subject can mean around **50–60 handwritten pages**. Across four, five, or six subjects, the work can quickly become a batch of **100–200 or more page images**. Every page has to be selected, kept in the right sequence, converted into a readable PDF, and compressed enough to meet the portal's upload limit.
+
+I repeatedly ran into the same problems with the tools available:
+
+- **Paid features:** polished PDF applications often reserve useful conversion or compression options for paid plans.
+- **Advertisements and interruptions:** free apps and websites can interrupt an urgent task with ads, pop-ups, or upgrade prompts.
+- **Slow processing:** uploading a large group of images to an online converter, waiting for it to process, and downloading the result takes time.
+- **Internet dependency:** a weak connection, limited mobile data, or a temporarily unavailable website can stop the whole submission process.
+- **Inconsistent results:** some tools do not preserve the page sequence or image clarity I expected, or they produce a PDF that still does not fit the required size.
+- **Repeated trial and error:** create a PDF, check its size, compress it somewhere else, download it, inspect it, and start again if the result is unsuitable.
+- **Deadline pressure:** assignment work is often submitted close to a deadline. I needed a tool that could do the essential steps directly on my phone, without wasting time on an avoidable workflow.
+
+I wanted a practical solution to that exact problem—not another app full of unrelated features. So I built Paperly around one focused workflow:
+
+1. Select photographs of handwritten pages or scan the pages.
+2. Combine them into one multi-page PDF.
+3. Compress an existing PDF when a portal has a file-size restriction.
+4. Rename the output and save it on the phone, ready to upload.
+
+The purpose is to reduce friction in a real student task: **preparing large batches of handwritten coursework for strict online submission requirements, quickly and with fewer dependencies.**
+
+Paperly is built from a problem I faced myself. The goal is to make that workflow faster and more predictable for other students facing the same situation.
+
+---
+
+## 3. What Paperly does
+
+### Images to PDF
+
+- Select multiple images through Android's system file picker.
 - Combine the selected images into one multi-page PDF.
-- Keep the image sequence as selected.
-- Process images locally on the device.
-- Create a PDF that can be renamed before saving.
+- Keep the selected image sequence in the generated document.
+- Process and encode the images on the device.
+- Review the generated file, rename it, and save it.
 
-### 2. Document scanning to PDF
+The current image pipeline prepares JPEG page images with a maximum side length of approximately 1,800 pixels and JPEG quality 88 before creating the PDF. The goal is a practical balance between readability, processing time, and output size.
 
-- Open the Google ML Kit Document Scanner flow.
-- Capture multiple pages as one document.
-- Use the scanner's document-edge detection, crop, rotation, and cleanup tools.
-- Return a PDF to Paperly for naming and saving.
+### Document scan to PDF
 
-The scanner is configured for up to 50 pages per scan session. It is provided through Google Play services, so the first use may need an internet connection to obtain its scanner module. The scanner also requires a compatible device with at least 1.7 GB of total RAM. Image-to-PDF remains available on devices that do not meet the scanner requirement.
+- Launch Google ML Kit Document Scanner through Google Play services.
+- Capture multiple pages in one scan session.
+- Use the scanner's document-edge detection, cropping, rotation, and cleanup experience.
+- Return the scanned PDF to Paperly for naming and saving.
 
-### 3. PDF compression
+The scanner is configured for up to **50 pages per scan session**. ML Kit Document Scanner requires a compatible device with at least **1.7 GB of total RAM**. Its module may need to be downloaded by Google Play services the first time it is used, so the first scan can require an internet connection. Image-to-PDF remains available independently of the scanner requirement.
+
+### PDF compression
 
 - Select an existing PDF from the device.
 - Enter a target size in megabytes or choose a preset.
-- Rebuild the PDF with adjusted image resolution and JPEG quality.
+- Re-render the PDF pages at adjusted image dimensions and JPEG quality.
+- Generate a smaller image-based PDF where the source and target make that possible.
 - See whether the requested target size was reached.
-- Rename the result and save it to the device.
+- Rename and save the resulting file.
 
-**Compression is best-effort, not a guaranteed file-size limit.** The app reports when an especially aggressive target could not be reached rather than claiming that it succeeded.
+**Important compression limitation:** the current compressor renders each source PDF page and rebuilds the document as image-backed pages. This can preserve the page's visible appearance, but it flattens selectable/searchable text, hyperlinks, and vector content into page images. Keep the original file when those properties must remain editable or searchable.
 
-**PDF content note:** the current compressor renders PDF pages and rebuilds them as image-backed pages. It aims to retain the visual appearance of the source, but selectable/searchable text, links, and vector content are flattened into page images. Use the original PDF when those properties must be preserved.
+**Target size is best-effort, not guaranteed.** The actual result depends on the source document, page count, image content, and requested target. Paperly reports when the target could not be reached instead of claiming a false success.
 
-### 4. Simple app settings
+### File naming and saving
 
-- View the installed app version.
-- See whether Expo OTA updates are connected.
-- Manually check for a compatible app update.
-- View basic app information.
+- Rename the output before saving.
+- Save generated PDFs to **Downloads/Paperly** using Android's MediaStore APIs.
+- Use Android's built-in file picker for selecting source images and PDFs.
 
-The interface uses Paperly-owned progress and confirmation dialogs. Android's file picker, system permission prompts, and Google ML Kit scanner screens remain native platform experiences.
+### Settings and update controls
 
----
+- View the installed Paperly version.
+- View the current OTA connection status.
+- Manually check for a compatible Expo update.
+- Read basic information about the app.
 
-## How it works
-
-Paperly uses a small React Native interface and a Kotlin Android module for document operations.
-
-1. The user selects images, scans a document, or chooses an existing PDF.
-2. The React Native screen calls the native PdfTools module.
-3. Android processes the document locally. Image conversion and PDF compression run on a background worker thread rather than doing the heavy work on the UI thread.
-4. Paperly presents the generated file, allows it to be renamed, and saves it to the **Downloads/Paperly** folder using Android's media-storage APIs.
-
-Temporary working files are used during processing and cleaned up after the operation. No Paperly server receives the student's notes or assignments.
+The app's own progress, result, and confirmation dialogs are rendered inside Paperly. The Android file picker, system permission prompts, and Google ML Kit scanner are native Android experiences.
 
 ---
 
-## Technology stack
+## 4. App screenshots
 
-| Layer | Technology | Purpose |
+The following screenshots are supplied for this project and hosted on ImageKit.
+
+| App screenshot | App screenshot |
+|---|---|
+| ![Paperly screenshot 1](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM.jpeg) | ![Paperly screenshot 2](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM.jpeg) |
+| ![Paperly screenshot 3](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM%20%281%29.jpeg) | ![Paperly screenshot 4](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM%20%282%29.jpeg) |
+| ![Paperly screenshot 5](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.08%20PM%20%281%29.jpeg) | ![Paperly screenshot 6](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM%20%281%29.jpeg) |
+
+---
+
+## 5. How the application works
+
+Paperly uses a React Native interface for the app experience and a Kotlin native module for Android document operations.
+
+```text
+Student
+  |
+  v
+Paperly Android UI (React Native + TypeScript)
+  |
+  v
+Native bridge: PdfTools
+  |
+  v
+Kotlin document-processing module
+  |-- Android document picker
+  |-- Google ML Kit Document Scanner
+  |-- Image encoding and PDF generation
+  |-- PDF rendering and compression
+  |-- Android MediaStore
+  |
+  v
+Downloads/Paperly
+```
+
+Typical processing flow:
+
+1. The student selects images, scans pages, or chooses an existing PDF.
+2. The React Native screen calls the relevant method in the native `PdfTools` module.
+3. Kotlin performs document processing locally. Heavy PDF work is dispatched to a dedicated, lower-priority worker thread so it does not need to run on the UI thread.
+4. Paperly displays the result and lets the student choose a filename.
+5. Android MediaStore saves the final PDF in **Downloads/Paperly**.
+
+Temporary working files are used during processing and removed after they are no longer needed. The document workflow does not upload handwritten notes or assignments to a Paperly server.
+
+---
+
+## 6. Technology stack
+
+| Layer | Technology | What it is used for |
 |---|---|---|
-| App UI | React Native 0.76.9 | Native Android application UI using React |
-| Language | TypeScript | Typed application state and UI logic |
-| React runtime | React 18.3.1 | Component rendering |
-| Expo platform modules | Expo SDK 52 | Native module and app-runtime integration |
-| OTA client | expo-updates 0.27.5 | Compatible JavaScript bundle updates when EAS is configured |
-| Android native layer | Kotlin | PDF processing, file handling, scanning integration, and Downloads saving |
-| Document scanner | Google ML Kit Document Scanner via Google Play services | Multi-page document capture and cleanup |
-| Android PDF APIs | PdfRenderer, Android storage APIs, and MediaStore | PDF rendering, file access, and saving |
-| Icons | lucide-react-native | Consistent vector icons |
-| Safe-area layout | react-native-safe-area-context | Keeps the header and content clear of Android status and navigation bars |
-| JavaScript engine | Hermes | React Native JavaScript runtime |
-| Build and checks | Gradle, Android SDK, GitHub Actions | Type-checking and CI APK builds |
+| Mobile UI | React Native 0.76.9 | Building the native Android application interface |
+| Application language | TypeScript | Screen logic, application state, and type checking |
+| UI runtime | React 18.3.1 | Component-based rendering |
+| Expo platform | Expo SDK 52 | Expo runtime and native module integration |
+| OTA update client | expo-updates 0.27.5 | Downloading compatible JavaScript updates when EAS is configured |
+| Android native code | Kotlin | PDF operations, file handling, scanner integration, and file saving |
+| Document scanning | Google ML Kit Document Scanner 16.0.0 via Google Play services | Multi-page document capture and cleanup |
+| PDF and graphics APIs | Android PdfRenderer and Android graphics APIs | Rendering and creating PDF pages |
+| File access and export | Android Storage Access Framework and MediaStore | Selecting source documents and saving output |
+| Icons | lucide-react-native 0.468.0 | Lightweight, consistent vector icons |
+| Safe-area layout | react-native-safe-area-context 4.12.0 | Keeping app content clear of status and navigation bars |
+| JavaScript engine | Hermes | Running the React Native JavaScript bundle |
+| Android build | Gradle 8.10.2 and Android SDK Platform 35 | Compiling and packaging the APK |
+| CI | GitHub Actions | Type-checking and building downloadable Android APK artifacts |
 
-### Platform requirements
+### Android compatibility
 
-- Android 10 (API 29) or newer.
-- ARM64 Android devices (arm64-v8a) for the current APK build.
-- JDK 17, Node.js 20+, Android SDK Platform 35, and Gradle 8.10.2 for local builds.
-- Google Play services and at least 1.7 GB total device RAM for the ML Kit scanner flow.
-
----
-
-## Privacy and network behaviour
-
-- **No Paperly backend:** there is no application server or cloud document-processing service.
-- **No account or login:** the core PDF workflow can be used without registering.
-- **Local document processing:** selected images and PDFs are processed on the device.
-- **Local output:** generated PDFs are saved to Downloads/Paperly.
-- **No advertising SDK or analytics service is included in the app dependencies.**
-- **Network exceptions:** Google Play services may need to download the ML Kit scanner module on first use. Expo OTA updates also require a configured EAS project and an internet connection. These do not turn the PDF conversion/compression workflow into a cloud upload service.
+- **Minimum Android version:** Android 10 (API 29).
+- **Current APK architecture:** ARM64 (`arm64-v8a`).
+- **Target Android SDK:** API 35.
+- **Scanner requirement:** Google Play services and at least 1.7 GB total device RAM.
+- **Local development:** Node.js 20+, JDK 17, Android SDK Platform 35, and Gradle 8.10.2.
 
 ---
 
-## Android APK and release status
+## 7. Local processing, privacy, and network use
 
-Paperly is a complete, installable Android application—not just a web page or a UI prototype. The repository includes the React Native app, its Kotlin document-processing module, Android project configuration, and a GitHub Actions workflow that type-checks the app and builds an ARM64 release APK.
+Paperly is designed so that the main PDF workflow does not depend on a Paperly cloud service.
 
-Every push to main and every manual run of the **Android APK** workflow attempts to:
+- **No Paperly backend:** there is no application server for document conversion.
+- **No account or login:** the main PDF tools do not require registration.
+- **On-device processing:** image conversion and PDF compression happen locally.
+- **Local output:** generated files are saved to the device's Downloads/Paperly folder.
+- **No advertising or analytics SDK is included in the declared app dependency set.**
+- **Limited network cases:** Google Play services may download the ML Kit scanner module on first use. OTA update checks and downloads require an internet connection and a configured Expo EAS project.
 
-1. Install JavaScript dependencies.
-2. Run npm run typecheck.
-3. Build the Android release APK.
-4. Upload the APK as the paperly-android-apk workflow artifact.
+The Android system file picker and Google Play services scanner are platform-provided components; their availability and behaviour can depend on the device and installed Google services.
 
-### Production-distribution items to configure
+---
 
-The current CI release build uses Gradle's default debug signing configuration to produce an installable test APK. It is **not yet a Play Store signing setup**. Before a public production release, configure a permanent private release/upload keystore in GitHub Actions secrets and use that same signing identity for subsequent releases. APKs signed with different keys cannot update one another in place.
+## 8. Android app, APK installation, and release readiness
 
-OTA updates are integrated into the project, but **OTA publishing is not active until the EAS credentials are configured**:
+Paperly is a **real, installable Android application**, not a website wrapped in a WebView and not only a UI prototype. The repository contains the React Native application, the Kotlin PDF-processing module, Android project configuration, and a GitHub Actions build workflow.
+
+The current workflow:
+
+1. Installs JavaScript dependencies.
+2. Runs `npm run typecheck`.
+3. Builds the ARM64 Android release APK.
+4. Uploads the APK as a `paperly-android-apk` workflow artifact.
+
+### Downloading the APK
+
+1. Open the repository's [Android APK workflow runs](https://github.com/WorkRCS/pdf-app/actions/workflows/android-apk.yml).
+2. Open a run whose status is **successful**.
+3. Download the `paperly-android-apk` artifact.
+4. Extract the ZIP and install the APK on a compatible ARM64 Android device.
+
+GitHub Actions artifacts are temporary build downloads and currently have a **14-day retention period**. They are not the same as a permanent GitHub Release or a Play Store listing.
+
+### Installing a new APK update
+
+Android can install a newer APK over an existing app when the package identity is the same, the version code is higher, and the APK is signed with the same signing certificate as the installed app.
+
+The current CI release workflow uses Gradle's default debug signing configuration to create an installable APK for testing. It does **not** yet use a permanent private release keystore. Because hosted CI runners are temporary, the signing key should not be treated as a stable identity across builds. Therefore, in-place upgrades from one CI artifact to a later CI artifact are **not guaranteed** at this stage.
+
+Before distributing reliable upgradeable releases or publishing to Google Play, configure a permanent private release/upload keystore in GitHub Actions secrets and use that same signing identity for every release. Back up the keystore securely; losing it can prevent future APKs from updating an installed build signed with that key.
+
+### OTA (over-the-air) updates
+
+Paperly includes the `expo-updates` client, a Settings screen for checking updates, and a GitHub Actions workflow for publishing compatible JavaScript updates.
+
+**OTA publishing is implemented in the repository but is not connected yet.** To activate it:
 
 1. Create an Expo EAS project for Paperly.
-2. Add the EAS project UUID as the GitHub Actions repository variable EAS_PROJECT_ID.
-3. Add an Expo access token as the GitHub Actions repository secret EXPO_TOKEN.
-4. Build and install an APK that contains that EAS project configuration.
+2. Add its project UUID as the GitHub Actions repository variable `EAS_PROJECT_ID`.
+3. Add a valid Expo access token as the GitHub Actions repository secret `EXPO_TOKEN`.
+4. Build and install a new APK containing that EAS project configuration.
 
-After setup, compatible JavaScript/TypeScript UI changes and supported assets can be published through the **Publish Paperly OTA update** workflow. Users can receive those updates without downloading a new APK.
+Once configured, compatible TypeScript/JavaScript UI changes and supported assets can be published through the **Publish Paperly OTA update** workflow. Users can receive those compatible updates without installing a new APK.
 
-**Native changes still require a new APK.** This includes Kotlin/Java code, Android permissions, scanner integration, or adding, removing, or changing a native dependency. When the native runtime changes, increment the runtime version consistently in app.config.js, android/app/build.gradle, and android/app/src/main/res/values/strings.xml. The runtime version prevents an incompatible OTA bundle from being applied to a different native binary.
+**Native changes still require a new APK.** Changes to Kotlin/Java code, Android permissions, scanner integration, native dependencies, or native configuration cannot be delivered by a JavaScript-only OTA update. The native runtime version must also be incremented consistently when a change is incompatible with the previously installed native binary.
 
-For these reasons, Paperly is functionally complete as an installable Android app with a CI build pipeline, while permanent release signing and EAS OTA credentials remain deployment configuration tasks.
+### Is it production-ready?
 
----
+The core Android app is implemented and builds as an installable APK. Its principal PDF workflows—image conversion, document scanning, PDF compression, renaming, and local saving—are present.
 
-## Could Paperly become an iOS app?
+For clarity, **feature-complete and installable does not mean that every production-distribution service is already configured**. A permanent release signing identity and EAS credentials are still required for reliable upgradeable releases and active OTA publishing. Play Store publication would also require the normal release testing, store listing, privacy declarations, and signing setup.
 
-Yes. React Native makes it possible to reuse much of the TypeScript UI and application logic for an iOS version. The current document-processing layer, however, is Android-specific Kotlin code.
-
-An iOS port would need native equivalents for:
-
-- Image and PDF file selection using iOS document-picker APIs.
-- Document scanning using Apple's VisionKit document-camera experience (where supported).
-- PDF rendering, image conversion, compression, and file export using iOS frameworks such as PDFKit, Core Graphics, and the Files sharing/document APIs.
-- iOS-specific permissions, safe areas, app configuration, signing, and distribution.
-
-So the project is a strong cross-platform starting point, but it is **not automatically an iOS app yet**. The iOS native module and Xcode target must be implemented and tested separately.
+This distinction is intentional: the project documents what works today and what remains to be configured, rather than describing an inactive update service as already live.
 
 ---
 
-## Build locally
+## 9. Can Paperly be converted into an iOS app?
 
-See [BUILDING.md](BUILDING.md) for full setup instructions.
+**Yes, Paperly is a good candidate for an iOS port because its interface and much of its application logic are written in React Native and TypeScript.** The existing project, however, is currently an Android application.
 
-~~~bash
+The Android-specific Kotlin module cannot simply be copied into an iOS build. An iOS version would need native equivalents, for example:
+
+| Current Android implementation | iOS implementation to build |
+|---|---|
+| Android document picker / Storage Access Framework | iOS document picker and Files integration |
+| Google ML Kit Document Scanner | Apple VisionKit document camera, where supported |
+| Android PdfRenderer and graphics APIs | PDFKit and Core Graphics |
+| Android MediaStore Downloads saving | iOS document export and Files sharing |
+| Kotlin `PdfTools` native module | Swift native module exposed to React Native |
+
+The React Native screens, design system, and much of the TypeScript workflow can be reused. The iOS native document module, Xcode project configuration, permissions, signing, and device testing must be implemented separately. **Paperly is not an iOS app yet**, but its React Native foundation makes an iOS version technically achievable without rewriting the entire UI from scratch.
+
+---
+
+## 10. Build Paperly locally
+
+See [BUILDING.md](BUILDING.md) for the complete setup and build notes.
+
+```bash
 npm install
 npm run typecheck
 gradle --no-daemon -p android :app:assembleRelease
-~~~
+```
 
-The APK is generated at:
+The generated APK is located at:
 
+```text
 android/app/build/outputs/apk/release/app-release.apk
+```
 
 ---
 
-## Project principles
+## 11. Project principles
 
-- Solve a real student submission problem.
-- Keep the main workflow focused on PDF conversion and compression.
-- Prefer on-device processing over uploading handwritten work to websites.
-- Keep the interface simple and predictable.
+- Solve a real problem from student life.
+- Keep the main experience focused on converting, scanning, and compressing PDFs.
+- Prefer local document processing over uploading private coursework to online converters.
+- Keep the interface lightweight and straightforward.
 - Avoid unnecessary dependencies and background work.
-- Report limitations honestly, especially when a requested compression target cannot be reached.
+- Be transparent about compression limits, device requirements, and update readiness.
 
 ---
 
-*Paperly was built from a problem I experienced as a student: preparing large batches of handwritten coursework for strict online submission requirements, quickly and without unnecessary friction.*
+## Repository
+
+- **Source code:** [WorkRCS/pdf-app](https://github.com/WorkRCS/pdf-app)
+- **Build instructions:** [BUILDING.md](BUILDING.md)
+- **Android APK workflow:** [GitHub Actions](https://github.com/WorkRCS/pdf-app/actions/workflows/android-apk.yml)
+- **OTA workflow:** [Publish Paperly OTA update](.github/workflows/publish-ota.yml)
+
+---
+
+*Paperly was built from a problem I faced as a college student: turning a large number of handwritten pages into a readable, size-compliant PDF for an assignment portal—without unnecessary ads, subscriptions, slow uploads, or dependence on an online converter.*
