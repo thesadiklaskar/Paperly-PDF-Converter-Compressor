@@ -4,7 +4,6 @@ import {
   AppState,
   NativeModules,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -13,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import * as Updates from 'expo-updates';
+import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import {
   ArrowLeft,
   CalendarClock,
@@ -259,7 +259,7 @@ function BottomTab({
   );
 }
 
-export default function App() {
+function PaperlyApp() {
   const [tab, setTab] = useState<TabKey>('pdf');
   const [studyTool, setStudyTool] = useState<StudyTool>('overview');
   const [pdfTab, setPdfTab] = useState<'converter' | 'compressor'>('converter');
@@ -631,7 +631,7 @@ export default function App() {
   );
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={C.background} />
       <View style={styles.root}>
         <View style={styles.header}>
@@ -986,6 +986,14 @@ export default function App() {
         )}
       </View>
     </SafeAreaView>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <PaperlyApp />
+    </SafeAreaProvider>
   );
 }
 
