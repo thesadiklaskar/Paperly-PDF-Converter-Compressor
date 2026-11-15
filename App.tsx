@@ -132,15 +132,13 @@ function safeStudentData(raw: string | null): StudentData {
 }
 
 function calculate(expression: string): number {
-  const source = expression.replace(/×/g, '*').replace(/÷/g, '/').replace(/\s/g, '');
+  const source = expression.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/\s/g, '');
   if (!source || source.length > 48 || !/^[0-9+\-*/%.()]+$/.test(source)) {
     throw new Error('Invalid expression');
   }
   const tokens = source.match(/\d*\.?\d+|[()+\-*/%]/g) || [];
   if (tokens.join('') !== source) throw new Error('Invalid expression');
   let index = 0;
-  let parseExpression: () => number;
-
   const parsePrimary = (): number => {
     const token = tokens[index];
     if (token === '+' || token === '-') {
@@ -176,7 +174,7 @@ function calculate(expression: string): number {
     return value;
   };
 
-  parseExpression = (): number => {
+  function parseExpression(): number {
     let value = parseTerm();
     while (tokens[index] === '+' || tokens[index] === '-') {
       const operator = tokens[index++];
@@ -184,7 +182,7 @@ function calculate(expression: string): number {
       value = operator === '+' ? value + right : value - right;
     }
     return value;
-  };
+  }
 
   const answer = parseExpression();
   if (index !== tokens.length || !Number.isFinite(answer)) throw new Error('Invalid expression');
@@ -342,25 +340,25 @@ export default function App() {
   useEffect(() => {
     if (!timerRunning || tab !== 'study' || studyTool !== 'focus' || !appActive) return;
     const interval = setInterval(() => {
-      setTimerSeconds(current => {
-        if (current <= 1) {
-          setTimerRunning(false);
-          if (timerMode === 'focus') {
-            const next = {...studentData, focusSessions: studentData.focusSessions + 1};
-            commitStudentData(next);
-            setTimerMode('break');
-            openDialog('Focus complete', 'Take a short break.');
-            return 5 * 60;
-          }
-          setTimerMode('focus');
-          openDialog('Break complete', 'Ready for another focus session?');
-          return 25 * 60;
-        }
-        return current - 1;
-      });
+      setTimerSeconds(current => Math.max(0, current - 1));
     }, 1000);
     return () => clearInterval(interval);
   }, [timerRunning, tab, studyTool, appActive]);
+
+  useEffect(() => {
+    if (timerSeconds !== 0 || !timerRunning) return;
+    setTimerRunning(false);
+    if (timerMode === 'focus') {
+      commitStudentData({...studentData, focusSessions: studentData.focusSessions + 1});
+      setTimerMode('break');
+      setTimerSeconds(5 * 60);
+      openDialog('Focus complete', 'Take a short break.');
+    } else {
+      setTimerMode('focus');
+      setTimerSeconds(25 * 60);
+      openDialog('Break complete', 'Ready for another focus session?');
+    }
+  }, [timerSeconds, timerRunning, timerMode, studentData]);
 
   const run = async (label: string, action: () => Promise<void>) => {
     if (!PdfTools) {
