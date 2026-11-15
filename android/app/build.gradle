@@ -31,15 +31,15 @@ android {
         applicationId "com.paperly"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6
-        versionName "1.0.5"
+        versionCode 7
+        versionName "1.0.6"
         ndk {
             abiFilters "arm64-v8a"
         }
         manifestPlaceholders = [
             expoUpdatesEnabled: expoUpdatesEnabled.toString(),
             expoUpdateUrl: expoUpdatesEnabled ? "https://u.expo.dev/" + easProjectId : "",
-            expoRuntimeVersion: "1.0.4"
+            expoRuntimeVersion: "1.0.5"
         ]
     }
 
