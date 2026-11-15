@@ -4,8 +4,8 @@
 
 Paperly brings image-to-PDF conversion, multi-page document scanning, and PDF compression together in one lightweight Android application. Its core document workflow runs locally on the device, without a Paperly account, application backend, or cloud document upload.
 
-[![Android APK workflow](https://github.com/WorkRCS/pdf-app/actions/workflows/android-apk.yml/badge.svg)](https://github.com/WorkRCS/pdf-app/actions/workflows/android-apk.yml)
-[![Latest source](https://img.shields.io/badge/platform-Android%20%7C%20ARM64-3DDC84)](https://github.com/WorkRCS/pdf-app)
+[![Android APK workflow](https://github.com/thesadiklaskar/Paperly-PDF-Converter-Compressor/actions/workflows/android-apk.yml/badge.svg)](https://github.com/thesadiklaskar/Paperly-PDF-Converter-Compressor/actions/workflows/android-apk.yml)
+[![Latest source](https://img.shields.io/badge/platform-Android%20%7C%20ARM64-3DDC84)](https://github.com/thesadiklaskar/Paperly-PDF-Converter-Compressor)
 
 ---
 
@@ -99,13 +99,42 @@ The app's own progress, result, and confirmation dialogs are rendered inside Pap
 
 ## 4. App screenshots
 
-The following screenshots show the Paperly Android application.
+The following screenshots show the Paperly Android application. The image embeds use the original ImageKit filenames, with literal parentheses for screenshots 3–5 to avoid percent-encoding issues. Each image also has a direct fallback link.
 
-| App screenshot | App screenshot |
-|---|---|
-| ![Paperly screenshot 1](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM.jpeg) | ![Paperly screenshot 2](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM.jpeg) |
-| ![Paperly screenshot 3](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM%20%281%29.jpeg) | ![Paperly screenshot 4](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM%20%282%29.jpeg) |
-| ![Paperly screenshot 5](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM%20%281%29.jpeg) | ![Paperly screenshot 6](https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.08%20PM.jpeg) |
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM.jpeg" alt="Paperly screenshot 1" width="320" />
+        <br /><a href="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM.jpeg">Open screenshot 1</a>
+      </td>
+      <td align="center">
+        <img src="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM.jpeg" alt="Paperly screenshot 2" width="320" />
+        <br /><a href="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM.jpeg">Open screenshot 2</a>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM%20(1).jpeg" alt="Paperly screenshot 3" width="320" />
+        <br /><a href="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM%20(1).jpeg">Open screenshot 3</a>
+      </td>
+      <td align="center">
+        <img src="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM%20(2).jpeg" alt="Paperly screenshot 4" width="320" />
+        <br /><a href="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.07%20PM%20(2).jpeg">Open screenshot 4</a>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM%20(1).jpeg" alt="Paperly screenshot 5" width="320" />
+        <br /><a href="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.06%20PM%20(1).jpeg">Open screenshot 5</a>
+      </td>
+      <td align="center">
+        <img src="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.08%20PM.jpeg" alt="Paperly screenshot 6" width="320" />
+        <br /><a href="https://ik.imagekit.io/xvqovhmcyr/pdf-maker/WhatsApp%20Image%202026-11-15%20at%201.33.08%20PM.jpeg">Open screenshot 6</a>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ---
 
@@ -203,7 +232,7 @@ The current workflow:
 
 ### Downloading the APK
 
-1. Open the repository's [Android APK workflow runs](https://github.com/WorkRCS/pdf-app/actions/workflows/android-apk.yml).
+1. Open the repository's [Android APK workflow runs](https://github.com/thesadiklaskar/Paperly-PDF-Converter-Compressor/actions/workflows/android-apk.yml).
 2. Open a run whose status is **successful**.
 3. Download the `paperly-android-apk` artifact.
 4. Extract the ZIP and install the APK on a compatible ARM64 Android device.
@@ -292,9 +321,9 @@ android/app/build/outputs/apk/release/app-release.apk
 
 ## Repository
 
-- **Source code:** [WorkRCS/pdf-app](https://github.com/WorkRCS/pdf-app)
+- **Source code:** [thesadiklaskar/Paperly-PDF-Converter-Compressor](https://github.com/thesadiklaskar/Paperly-PDF-Converter-Compressor)
 - **Build instructions:** [BUILDING.md](BUILDING.md)
-- **Android APK workflow:** [GitHub Actions](https://github.com/WorkRCS/pdf-app/actions/workflows/android-apk.yml)
+- **Android APK workflow:** [GitHub Actions](https://github.com/thesadiklaskar/Paperly-PDF-Converter-Compressor/actions/workflows/android-apk.yml)
 - **OTA workflow:** [Publish Paperly OTA update](.github/workflows/publish-ota.yml)
 
 ---
