@@ -1,12 +1,14 @@
 # Building Paperly
 
 ## Requirements
-- Android Studio / Android SDK (API 35)
-- JDK 17
-- Node.js 20+
-- Gradle 8.10.2
 
-Paperly currently targets Android 10 (API 29) and arm64 devices.
+- Node.js 20 or newer
+- JDK 17
+- Android SDK Platform 35
+- Gradle 8.10.2
+- An ARM64 Android device or emulator for testing
+
+The app targets Android 10 (API 29) and newer and currently builds an ARM64 APK (arm64-v8a).
 
 ## Install dependencies
 
@@ -14,34 +16,53 @@ Paperly currently targets Android 10 (API 29) and arm64 devices.
 npm install
 ~~~
 
-## Debug install
+## Type-check the app
+
+~~~bash
+npm run typecheck
+~~~
+
+## Install a debug build
 
 ~~~bash
 gradle -p android installDebug
 ~~~
 
-## Release APK for device testing
+## Build an installable release APK
 
 ~~~bash
-gradle -p android :app:assembleRelease
+gradle --no-daemon -p android :app:assembleRelease
 ~~~
 
 The APK is created under:
 
-android/app/build/outputs/apk/release/
+android/app/build/outputs/apk/release/app-release.apk
 
-The current release build is arm64-only and uses the default Android debug signing key so it can be installed for testing. Replace that signing configuration with a private release keystore before Play Store distribution.
+The current CI release configuration uses the default Android debug signing key for installable testing. Configure a permanent private release/upload keystore before Play Store publishing or distributing upgradeable production releases. Reuse the same signing identity for future versions so Android can install updates over an existing copy.
 
 ## GitHub Actions
 
-Every push to main and manual workflow dispatch runs the Android release build. The installable APK is uploaded as the paperly-android-apk workflow artifact.
+Every push to main and manual workflow dispatch runs the **Android APK** workflow. It installs JavaScript dependencies, runs the TypeScript check, builds the release APK, and uploads the paperly-android-apk artifact.
 
-## Size strategy
+The workflow artifact is available from the corresponding run in the repository's Actions tab.
 
-- arm64-only APK instead of a universal APK
-- Hermes JavaScript engine
-- ProGuard/R8 minification and resource shrinking
-- no image, navigation, or icon libraries added to the JS bundle
-- ML Kit Document Scanner is supplied dynamically by Google Play services
+## OTA updates
 
-A 10 MB APK is a strict target, not a verified result. The actual size must be measured from the generated APK. The React Native engine and native Android runtime make a hard 10 MB guarantee unrealistic without a successful size audit.
+The project includes Expo Updates and a **Publish Paperly OTA update** workflow. To enable publishing, configure:
+
+- GitHub Actions repository variable: EAS_PROJECT_ID
+- GitHub Actions repository secret: EXPO_TOKEN
+
+Create the EAS project, add those values, then build and install a native APK that contains the EAS project configuration. Compatible JS/UI and asset updates can then be published without a new APK. Kotlin/Java or other native changes always require a new APK and a matching runtime-version increment.
+
+## Size and performance choices
+
+- ARM64-only release APK.
+- Hermes JavaScript engine.
+- R8/ProGuard and resource shrinking for release builds.
+- A small React Native dependency set.
+- Native PDF operations run on a background worker thread.
+- Temporary image/PDF working files are cleaned up after use.
+- Scanner functionality is delivered through Google Play services rather than bundling the full scanner model in the APK.
+
+The actual APK size depends on the Android toolchain and dependencies and should be measured from each generated artifact. A hard 10 MB limit cannot be guaranteed.
