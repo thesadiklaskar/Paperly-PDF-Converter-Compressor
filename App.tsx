@@ -30,7 +30,6 @@ import {
   Info,
   ListChecks,
   Minimize2,
-  NotebookPen,
   Pause,
   Play,
   Plus,
@@ -140,6 +139,7 @@ function calculate(expression: string): number {
   const tokens = source.match(/\d*\.?\d+|[()+\-*/%]/g) || [];
   if (tokens.join('') !== source) throw new Error('Invalid expression');
   let index = 0;
+  let parseExpression: () => number;
 
   const parsePrimary = (): number => {
     const token = tokens[index];
@@ -176,7 +176,7 @@ function calculate(expression: string): number {
     return value;
   };
 
-  const parseExpression = (): number => {
+  parseExpression = (): number => {
     let value = parseTerm();
     while (tokens[index] === '+' || tokens[index] === '-') {
       const operator = tokens[index++];
