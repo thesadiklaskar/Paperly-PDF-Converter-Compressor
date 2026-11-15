@@ -28,6 +28,18 @@ See BUILDING.md for local build steps and the GitHub Actions APK artifact.
 The project is configured for arm64, Hermes, R8/ProGuard and resource shrinking. A 10 MB APK is an optimization goal only; it cannot be guaranteed until the release APK has actually been built and measured.
 
 
+
+## Offline student tools
+
+Paperly also includes a lightweight student area with a bottom icon navigation bar:
+
+- Calculator and a foreground-only focus timer
+- Exam countdown and a weekly study timetable
+- To-do list and editable quick notes
+
+Student data is stored locally on Android using the app's existing Kotlin module and SharedPreferences. No account, backend, analytics, or third-party storage package is required. The focus timer pauses while the app is backgrounded or the user leaves its screen. These student tools add no new npm dependencies.
+
+
 ## App updates (OTA)
 
 Paperly is prepared for Expo Updates (EAS Update). JavaScript/TypeScript UI and compatible assets can be published over the air, so users do not need a fresh APK for those changes. Updates download when the app opens and are applied on the next launch; the Settings screen also has a manual **Check for updates** action.
