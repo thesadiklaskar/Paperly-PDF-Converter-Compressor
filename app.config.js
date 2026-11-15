@@ -1,16 +1,16 @@
 const projectId = (process.env.EAS_PROJECT_ID || '').trim();
 const validProjectId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(projectId);
-const runtimeVersion = '1.0.4';
+const runtimeVersion = '1.0.5';
 
 module.exports = {
   expo: {
     name: 'Paperly',
     slug: 'paperly',
-    version: '1.0.5',
+    version: '1.0.6',
     orientation: 'portrait',
     android: {
       package: 'com.paperly',
-      versionCode: 6,
+      versionCode: 7,
     },
     runtimeVersion,
     updates: {
